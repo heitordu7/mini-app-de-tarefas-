@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciador de Tarefas</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+    <div class="container py-5">
+        <h1 class="text-center mb-4 text-primary"><i class="fas fa-tasks"></i> Gerenciador de Tarefas</h1>
+
+        <!-- Formulário para Cadastrar Tarefa -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Nova Tarefa</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="titulo" class="form-label">Título da Tarefa</label>
+                        <input type="text" class="form-control" id="titulo" name="titulo" required placeholder="Ex: Estudar Flask">
+                    </div>
+                    <div class="mb-3">
+                        <label for="descricao" class="form-label">Descrição (Opcional)</label>
+                        <textarea class="form-control" id="descricao" name="descricao" rows="2" placeholder="Ex: Criar uma aplicação CRUD completa"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success"><i class="fas fa-plus"></i> Cadastrar Tarefa</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Lista de Tarefas -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0">Lista de Tarefas</h5>
+            </div>
+            <div class="card-body">
+                {% if tarefas %}
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Título</th>
+                                    <th>Descrição</th>
+                                    <th>Status</th>
+                                    <th class="text-end">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for tarefa in tarefas %}
+                                <tr>
+                                    <td>{{ tarefa['id'] }}</td>
+                                    <td class="fw-bold {% if tarefa['status'] == 'Concluído' %}text-decoration-line-through text-muted{% endif %}">
+                                        {{ tarefa['titulo'] }}
+                                    </td>
+                                    <td class="text-muted {% if tarefa['status'] == 'Concluído' %}text-decoration-line-through{% endif %}">
+                                        {{ tarefa['descricao'] if tarefa['descricao'] else '-' }}
+                                    </td>
+                                    <td>
+                                        {% if tarefa['status'] == 'Concluído' %}
+                                            <span class="badge bg-success">Concluído</span>
+                                        {% else %}
+                                            <span class="badge bg-warning text-dark">Pendente</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end">
+                                        <!-- Botão Alterar Status -->
+                                        <form action="{{ url_for('mudar_status', id=tarefa['id']) }}" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-sm {% if tarefa['status'] == 'Pendente' %}btn-outline-success{% else %}btn-outline-warning text-dark{% endif %}" title="Mudar Status">
+                                                {% if tarefa['status'] == 'Pendente' %}
+                                                    <i class="fas fa-check"></i> Concluir
+                                                {% else %}
+                                                    <i class="fas fa-undo"></i> Pendente
+                                                {% endif %}
+                                            </button>
+                                        </form>
+
+                                        <!-- Botão Excluir -->
+                                        <form action="{{ url_for('excluir', id=tarefa['id']) }}" method="POST" class="d-inline" onsubmit="return confirm('Deseja realmente excluir esta tarefa?');">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                                <i class="fas fa-trash-alt"></i> Excluir
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-center text-muted mb-0">Nenhuma tarefa cadastrada no momento.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
